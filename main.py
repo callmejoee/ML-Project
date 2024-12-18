@@ -1,8 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.svm import SVC
+global X_train, X_test, y_train, y_test
 
 # Load the data set as a float32 because my laptop can't even run the default64
 dataset = pd.read_csv("A_Z Handwritten Data.csv").astype('float32')
@@ -65,4 +67,30 @@ plt.show()
 
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(X_normalized, y, test_size=0.2, random_state=42)
+print("hello")
+def svm_linear_model():
+    print("hello")
+    global X_train, X_test, y_train, y_test
+    model= SVC(kernel="linear",C=2)
+    model.fit(X_train,y_train)
+    y_pre=model.predict(X_test)
+    cm=confusion_matrix(y_test,y_pre)
+    print(cm)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+    disp.plot(cmap='Blues', values_format='d')
+    plt.title("Confusion Matrix for SVM (Linear Kernel)")
+    plt.show()
 
+# svm_linear_model()
+def svm_nonlinear_model():
+    global X_train, X_test, y_train, y_test
+    model = SVC()
+    model.fit(X_train, y_train)
+    y_pre = model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pre)
+    print(cm)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=model.classes_)
+    disp.plot(cmap='Blues', values_format='d')
+    plt.title("Confusion Matrix for SVM (Linear Kernel)")
+    plt.show()
+svm_nonlinear_model()
