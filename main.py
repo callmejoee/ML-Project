@@ -4,6 +4,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
+import tensorflow as tf
+import numpy as np
 global X_train, X_test, y_train, y_test
 
 # Load the data set as a float32 because my laptop can't even run the default64
@@ -94,3 +96,28 @@ def svm_nonlinear_model():
     plt.title("Confusion Matrix for SVM (Linear Kernel)")
     plt.show()
 svm_nonlinear_model()
+
+def build_model(neurons_of_layers, activation):
+  parameters_arr = [
+      tf.keras.layers.Flatten(input_shape=(28, 28)),
+  ]
+
+  for num_of_neurons in neurons_of_layers[:-1]:
+    parameters_arr.append(tf.keras.layers.Dense(num_of_neurons, activation=activation))
+  parameters_arr.append(tf.keras.layers.Dense(num_of_neurons[-1]))
+
+  model = tf.keras.Sequential(parameters_arr)
+  return model
+
+def setup_model(model):
+  model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+
+def neural_networks():
+  model1 = build_model([128, 64, 26], 'relu')
+  setup_model(model1)
+  model1.fit(X_train, y_train, epochs=10)
+  test_loss, test_acc = model1.evaluate(X_test,  y_test, verbose=2)
+
+  print('\nTest accuracy:', test_acc)
