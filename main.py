@@ -24,7 +24,7 @@ for label in dataset['label']:
     alphabet_labels.append(chr(int(label) + 65))  # Convert numeric label to ASCII character to convert from 0-25 to A-Z
 
 # Replace the 'label' column with the new alphabetic labels
-dataset['label'] = alphabet_labels
+#dataset['label'] = alphabet_labels
 
 shuffled_dataset = dataset.sample(frac=1, random_state=42).reset_index(drop=True) # frac 1 to shuffle 100% and random state = 42 for reproducibility and reset index to reset index after shuffling
 
@@ -41,7 +41,7 @@ class_distribution.plot(kind='bar', figsize=(10, 6))
 plt.title("Distribution of Classes")
 plt.xlabel("Class (Letter)")
 plt.ylabel("Number of Samples")
-plt.show()
+#plt.show()
 # Normalizing each image using minmax scaler
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -52,6 +52,8 @@ X_test = scaler.transform(X_test)
 
 # Reshape flattened vectors into 28x28 2d images
 X_reshaped = X_train.reshape(X_train.shape[0], 28, 28)
+X_text_reshaped = X_test.reshape(X_test.shape[0], 28, 28)
+print(X_reshaped.shape)
 
 # Display a few images
 plt.figure(figsize=(10, 10))
@@ -86,9 +88,9 @@ def svm_linear_model():
     report = classification_report(y_test, y_pre)
     print("\nClassification Report Linear SVM:")
     print(report)
-    visualize_predictions(X_test, y_test, y_pre)
+    #visualize_predictions(X_test, y_test, y_pre)
 
-svm_linear_model()
+#svm_linear_model()
 
 # def svm_nonlinear_model():
 #     global X_train, X_test, y_train, y_test
@@ -110,7 +112,7 @@ def build_model(neurons_of_layers, activation):
 
   for num_of_neurons in neurons_of_layers[:-1]:
     parameters_arr.append(tf.keras.layers.Dense(num_of_neurons, activation=activation))
-  parameters_arr.append(tf.keras.layers.Dense(num_of_neurons[-1]))
+  parameters_arr.append(tf.keras.layers.Dense(neurons_of_layers[-1]))
 
   model = tf.keras.Sequential(parameters_arr)
   return model
@@ -123,8 +125,16 @@ def setup_model(model):
 def neural_networks():
   model1 = build_model([128, 64, 26], 'relu')
   setup_model(model1)
-  model1.fit(X_train, y_train, epochs=10)
-  test_loss, test_acc = model1.evaluate(X_test,  y_test, verbose=2)
+  model1.fit(X_reshaped, y_train, epochs=3)
+  test_loss, test_acc = model1.evaluate(X_text_reshaped,  y_test, verbose=2)
+  print('\nTest accuracy1:', test_acc)
+  model2 = build_model([256, 128, 64, 26], 'sigmoid')
+  setup_model(model2)
+  model2.fit(X_reshaped, y_train, epochs=3)
+  test_loss, test_acc = model2.evaluate(X_text_reshaped, y_test, verbose=2)
 
-  print('\nTest accuracy:', test_acc)
+  print('\nTest accuracy2:', test_acc)
 
+neural_networks()
+print(X_test.shape)
+print(y_train.shape)
