@@ -105,6 +105,8 @@ def svm_linear_model():
 #
 # svm_nonlinear_model()
 
+X_train_splited,X_Valid,y_train_splited,Y_Valid = train_test_split(X_reshaped, y_train, test_size=0.2, random_state=42)
+
 def build_model(neurons_of_layers, activation):
   parameters_arr = [
       tf.keras.layers.Flatten(input_shape=(28, 28)),
@@ -122,19 +124,44 @@ def setup_model(model):
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-def neural_networks():
-  model1 = build_model([128, 64, 26], 'relu')
+def neural_networks(neurons_per_layer, activation_func):
+  model1 = build_model(neurons_per_layer, activation_func)
   setup_model(model1)
-  model1.fit(X_reshaped, y_train, epochs=3)
-  test_loss, test_acc = model1.evaluate(X_text_reshaped,  y_test, verbose=2)
-  print('\nTest accuracy1:', test_acc)
-  model2 = build_model([256, 128, 64, 26], 'sigmoid')
-  setup_model(model2)
-  model2.fit(X_reshaped, y_train, epochs=3)
-  test_loss, test_acc = model2.evaluate(X_text_reshaped, y_test, verbose=2)
+  fiting_data = model1.fit(X_train_splited, y_train_splited, validation_data=(X_Valid, Y_Valid), epochs=2, verbose=1)
+  test_loss, test_acc = model1.evaluate(X_text_reshaped, y_test, verbose=1)
+  print('\nTest accuracy:', test_acc)
 
-  print('\nTest accuracy2:', test_acc)
+  plt.figure(figsize=(12, 5))
 
-neural_networks()
-print(X_test.shape)
-print(y_train.shape)
+  # Plot the Loss Curves
+  plt.subplot(1, 2, 1)
+  plt.plot(fiting_data.history['loss'], label='Training Loss')
+  plt.plot(fiting_data.history['val_loss'], label='Validation Loss')
+  plt.title('Loss Curve')
+  plt.xlabel('Epochs')
+  plt.ylabel('Loss')
+  plt.legend()
+
+  # Plot the Accuracy Curves
+  plt.subplot(1, 2, 2)
+  plt.plot(fiting_data.history['accuracy'], label='Training Accuracy')
+  plt.plot(fiting_data.history['val_accuracy'], label='Validation Accuracy')
+  plt.title('Accuracy Curve')
+  plt.xlabel('Epochs')
+  plt.ylabel('Accuracy')
+  plt.legend()
+
+  plt.show()
+
+print(X_Valid.shape)
+print(Y_Valid.shape)
+
+print("First NN Model")
+neural_networks([128, 64, 26], 'relu')
+print("Second NN Model")
+neural_networks([256, 128, 64, 26], 'sigmoid')
+
+def best_NN_model():
+    neural_networks([256, 128, 64, 26], 'sigmoid')
+#print(X_test.shape)
+#print(y_train.shape)
