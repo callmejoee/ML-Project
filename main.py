@@ -52,7 +52,7 @@ X_test = scaler.transform(X_test)
 
 # Reshape flattened vectors into 28x28 2d images
 X_reshaped = X_train.reshape(X_train.shape[0], 28, 28)
-X_text_reshaped = X_test.reshape(X_test.shape[0], 28, 28)
+X_test_reshaped = X_test.reshape(X_test.shape[0], 28, 28)
 print(X_reshaped.shape)
 
 # Display a few images
@@ -128,8 +128,27 @@ def neural_networks(neurons_per_layer, activation_func):
   model1 = build_model(neurons_per_layer, activation_func)
   setup_model(model1)
   fiting_data = model1.fit(X_train_splited, y_train_splited, validation_data=(X_Valid, Y_Valid), epochs=2, verbose=1)
-  test_loss, test_acc = model1.evaluate(X_text_reshaped, y_test, verbose=1)
+  test_loss, test_acc = model1.evaluate(X_test_reshaped, y_test, verbose=1)
+
   print('\nTest accuracy:', test_acc)
+
+  #y_predict = model1.predict(X_test_reshaped)
+  #y_pred_classes = np.argmax(y_predict, axis=1)
+  #cm = confusion_matrix(y_test, y_pred_classes)
+  #print(y_predict.shape)
+  #print(y_test.shape)
+  #print("Confusion_Matrix:")
+  #print(cm)
+
+
+  #f1_macro = f1_score(y_test, y_pred_classes, average='macro')
+  #f1_micro = f1_score(y_test, y_pred_classes, average='micro')
+  #f1_weighted = f1_score(y_test, y_pred_classes, average='weighted')
+
+  # Print the F1-scores
+  #print("Macro-average F1-Score:", f1_macro)
+  #print("Micro-average F1-Score:", f1_micro)
+  #print("Weighted-average F1-Score:", f1_weighted)
 
   plt.figure(figsize=(12, 5))
 
@@ -152,16 +171,15 @@ def neural_networks(neurons_per_layer, activation_func):
   plt.legend()
 
   plt.show()
+  return model1
 
-print(X_Valid.shape)
-print(Y_Valid.shape)
+#print(X_Valid.shape)
+#print(Y_Valid.shape)
 
-print("First NN Model")
-neural_networks([128, 64, 26], 'relu')
-print("Second NN Model")
-neural_networks([256, 128, 64, 26], 'sigmoid')
+#print("First NN Model")
+#neural_networks([128, 64, 26], 'relu')
+#print("Second NN Model")
+#neural_networks([256, 128, 64, 26], 'sigmoid')
 
-def best_NN_model():
-    neural_networks([256, 128, 64, 26], 'sigmoid')
 #print(X_test.shape)
 #print(y_train.shape)
