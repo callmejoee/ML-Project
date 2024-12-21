@@ -5,7 +5,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import f1_score
-import math
+
 
 # Load the data set as a float32 because my laptop can't even run the default64
 dataset = pd.read_csv("A_Z Handwritten Data.csv").astype('float32')
@@ -37,8 +37,11 @@ plt.ylabel("Number of Samples")
 plt.show()
 
 # Split the dataset into training, validation, and testing sets
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+# First split into 80% training and 20% testing
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Then split the training set into 80% training and 20% validation
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
 # Normalize the data using MinMaxScaler after splitting
 scaler = MinMaxScaler()
