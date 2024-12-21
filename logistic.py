@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,12 +7,10 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import f1_score
 import math
 
-global X_train, X_test, y_train, y_test
-
 # Load the data set as a float32 because my laptop can't even run the default64
 dataset = pd.read_csv("A_Z Handwritten Data.csv").astype('float32')
 
-# rename the first column to label which is the one that tells what letter this is 0-25 = A-Z
+# Rename the first column to label, which is the one that tells what letter this is (0-25 = A-Z)
 dataset.rename(columns={'0': 'label'}, inplace=True)
 
 # Change the y or label column to letters for better understanding
@@ -23,14 +20,13 @@ for label in dataset['label']:
 
 # Replace the 'label' column with the new alphabetic labels
 #dataset['label'] = alphabet_labels
-
-shuffled_dataset = dataset.sample(frac=1, random_state=42).reset_index(drop=True) # frac 1 to shuffle 100% and random state = 42 for reproducibility and reset index to reset index after shuffling
+shuffled_dataset = dataset.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # Split the dataset into features (X) and target labels (y)
 X = shuffled_dataset.drop('label', axis=1)  # Features are all columns except 'label'
 y = shuffled_dataset['label']  # Target label which will be the letter
 
-# show number of unqiue classes and their distribution
+# Show number of unique classes and their distribution
 print("Number of unique classes:", y.nunique())
 
 class_distribution = y.value_counts()
@@ -40,105 +36,113 @@ plt.xlabel("Class (Letter)")
 plt.ylabel("Number of Samples")
 plt.show()
 
-# Normalizing each image using minmax scaler
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split the dataset into training, validation, and testing sets
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.4, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
-# Normalize the data using MinMaxScaler after the split
+# Normalize the data using MinMaxScaler after splitting
 scaler = MinMaxScaler()
 X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
 X_test = scaler.transform(X_test)
 
-# Reshape flattened vectors into 28x28 2d images
-X_reshaped = X_train.reshape(X_train.shape[0], 28, 28)
-X_test_reshaped = X_test.reshape(X_test.shape[0], 28, 28)
-print(X_reshaped.shape)
-
-X_train_splited,X_Valid,y_train_splited,Y_Valid = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
-
-# Add bias column of ones
-X_train_splited = np.hstack([np.ones((X_train.shape[0], 1)), X_train])
-X_Valid = np.hstack([np.ones((X_Valid.shape[0], 1)), X_Valid])
+# Add a bias column of ones to all datasets
+X_train = np.hstack([np.ones((X_train.shape[0], 1)), X_train])
+X_val = np.hstack([np.ones((X_val.shape[0], 1)), X_val])
 X_test = np.hstack([np.ones((X_test.shape[0], 1)), X_test])
 
-def compute_partial(x, y, h):
-  m = len(y)
-  res = (1 / m) * np.dot(x.T, (y - h))
-  return res
-
-def logistic(alpha, max_iter, x, y):
-  theta = np.zeros(x.shape[1])
-  for i in range(max_iter):
-    # hypothesis function (sigmoid function of theta * x)
-    h = 1 / (1 + np.exp(-np.dot(x, theta)))
-
-    gradient = compute_partial(x, y, h)
-    theta = theta - alpha * gradient
-  return theta
-
+# Define the sigmoid function
 def sigmoid(x):
-  return 1 / (1 + np.exp(-x))
+    return 1 / (1 + np.exp(-x))
 
-m = len(y) # length of rows
+# Define the cost function for logistic regression
 def cost_function(theta, x, y):
-  hypothesis = sigmoid(np.dot(x, theta)) # (x . theta) is the z of the sigmoid function
-  cost = -(1 / m) * np.sum(y * np.log(hypothesis) + (1 - y) * np.log(1 - hypothesis)) # cost function as seen in lab 4, page 2
-  return cost
+    hypothesis = sigmoid(np.dot(x, theta))  # (x . theta) is the z of the sigmoid function
+    cost = -(1 / len(y)) * np.sum(y * np.log(hypothesis) + (1 - y) * np.log(1 - hypothesis))
+    return cost
 
+# Gradient descent for logistic regression
 def gradient_descent(alpha, max_iter, x, y):
-  cost_history = []
-  theta = np.zeros(x.shape[1])
-  for i in range(max_iter):
-    hypothesis = sigmoid(np.dot(x, theta))
-    gradient = (1 / len(y)) * np.dot(x.T, (hypothesis - y))
-    theta -= alpha * gradient
-    cost = cost_function(theta, x, y)
-    cost_history.append(cost)
-  return theta, cost_history
+    cost_history = []
+    theta = np.zeros(x.shape[1])  # Initialize weights to zero
+    for i in range(max_iter):
+        hypothesis = sigmoid(np.dot(x, theta))
+        gradient = (1 / len(y)) * np.dot(x.T, (hypothesis - y))
+        theta -= alpha * gradient
+        cost = cost_function(theta, x, y)
+        cost_history.append(cost)
+    return theta, cost_history
 
 def logistic_train(alpha, max_iter, x, y, num_of_classes):
-  rows, columns = x.shape
-  all_weights = np.zeros((num_of_classes, columns))
-  costs = []
+    rows, columns = x.shape
+    all_weights = np.zeros((num_of_classes, columns))  # Store weights for each class
+    costs = []
 
-  for i in range(num_of_classes):
-    print(f"Training model {chr(i + 65)}")
+    for i in range(num_of_classes):
+        print(f"Training model {chr(i + 65)}")
 
-    # gives rows equal to the current targeted class value of 1,
-    # any other value 0
-    y_binary = (y_train == i).astype(int)
-    theta, cost_history = gradient_descent(alpha, max_iter, x, y)
-    all_weights[i] = theta
-    costs.append(cost_history)
+        # gives rows equal to the current targeted class value of 1,
+        # any other value 0
+        y_binary = (y == i).astype(int)
+        theta, cost_history = gradient_descent(alpha, max_iter, x, y_binary)
+        all_weights[i] = theta
+        costs.append(cost_history)
 
-  return all_weights, costs
+    return all_weights, costs
 
 def logistic_predict(x, all_weights):
-  # multiplies the input values with the weights from training,
-  # and normalizes it via sigmoid
-  probabilities = sigmoid(np.dot(X, all_weights.T))
+    # multiplies the input values with the weights from training,
+    # and normalizes it via sigmoid
+    probabilities = sigmoid(np.dot(x, all_weights.T))
+    predictions = np.argmax(probabilities, axis=1)  # Get the class with the highest probability
+    return predictions
 
-  predictions = np.argmax(probabilities, axis=1)  # Use argmax to get the highest possibility
-  return predictions  # Return predicted classes
+# Train the logistic regression model
+num_of_classes = y.nunique()
+all_weights, costs = logistic_train(0.01, 100, X_train, y_train, num_of_classes)
 
-all_weights, costs = logistic_train(0.001, 2, X_train, y_train, 2)
+# Validate the model on the validation set
+y_val_prediction = logistic_predict(X_val, all_weights)
+val_accuracy = np.mean(y_val_prediction == y_val)
+print(f"Validation Accuracy: {val_accuracy:.4f}")
 
-def plot_cost_curves(costs):
-  plt.figure(figsize=(10, 6))
-  for i, cost_history in enumerate(costs):
-      plt.plot(cost_history, label=f"Class {i}")
-  plt.title("Error Curves for Each Class")
-  plt.xlabel("Epochs")
-  plt.ylabel("Cost")
-  plt.legend()
-  plt.show()
-
-def validate_logistic(all_weights):
-  y_val_prediction = logistic_predict(Y_Valid, all_weights)
-  acc = np.mean(y_val_prediction == Y_Valid)
-  return acc
-
+# Evaluate the model on the test set
 y_test_prediction = logistic_predict(X_test, all_weights)
-
 cm = confusion_matrix(y_test, y_test_prediction)
 print("Confusion Matrix:")
 print(cm)
+
+f1 = f1_score(y_test, y_test_prediction, average='weighted')
+print(f"Average F1 Score: {f1:.4f}")
+
+# Plot cost curves for all classes
+def plot_cost_curves(costs):
+    plt.figure(figsize=(10, 6))
+    for i, cost_history in enumerate(costs):
+        plt.plot(cost_history, label=f"Class {chr(i + 65)}")
+    plt.title("Cost Curves for Each Class")
+    plt.xlabel("Iterations")
+    plt.ylabel("Cost")
+    plt.legend()
+    plt.show()
+
+plot_cost_curves(costs)
+
+# Plot accuracy curves for training and validation sets
+train_accuracies = []
+val_accuracies = []
+
+for epoch in range(len(costs[0])):
+    y_train_pred_epoch = logistic_predict(X_train, all_weights)
+    y_val_pred_epoch = logistic_predict(X_val, all_weights)
+    train_accuracies.append(np.mean(y_train_pred_epoch == y_train))
+    val_accuracies.append(np.mean(y_val_pred_epoch == y_val))
+
+plt.figure(figsize=(10, 6))
+plt.plot(train_accuracies, label="Training Accuracy")
+plt.plot(val_accuracies, label="Validation Accuracy")
+plt.title("Accuracy Curves")
+plt.xlabel("Epochs")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.show()
