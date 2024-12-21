@@ -5,16 +5,13 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-
-import numpy as np
-
 from sklearn.metrics import f1_score
 import math
 
 global X_train, X_test, y_train, y_test
 
 # Load the data set as a float32 because my laptop can't even run the default64
-dataset = pd.read_csv("WRITE DATA PATH").astype('float32')
+dataset = pd.read_csv("A_Z Handwritten Data.csv").astype('float32')
 
 # rename the first column to label which is the one that tells what letter this is 0-25 = A-Z
 dataset.rename(columns={'0': 'label'}, inplace=True)
@@ -92,9 +89,8 @@ def gradient_descent(alpha, max_iter, x, y):
   theta = np.zeros(x.shape[1])
   for i in range(max_iter):
     hypothesis = sigmoid(np.dot(x, theta))
-    for j in range(theta.shape[0]):
-      gradient = compute_partial(x, y, hypothesis)
-      theta[j] = theta[j] - alpha * gradient[j]
+    gradient = (1 / len(y)) * np.dot(x.T, (hypothesis - y))
+    theta -= alpha * gradient
     cost = cost_function(theta, x, y)
     cost_history.append(cost)
   return theta, cost_history
