@@ -8,6 +8,7 @@ from sklearn.svm import SVC
 
 import tensorflow as tf
 import numpy as np
+from PIL import Image
 
 from sklearn.metrics import f1_score
 
@@ -66,13 +67,13 @@ def visualize_predictions(X_test, y_test, y_pred):
     num_samples = 20
     indices = np.random.choice(len(X_test), num_samples, replace=False)
     X_samples = X_test[indices].reshape(num_samples, 28, 28)
-    y_samples_true = y_test.iloc[indices].values
-    y_samples_pred = y_pred[indices]
+    y_samples_true = y_test.iloc[indices].values.astype(int)
+    y_samples_pred = y_pred[indices].astype(int)
     plt.figure(figsize=(10, 10))
     for i in range(num_samples):
         plt.subplot(5, 4, i + 1)
         plt.imshow(X_samples[i], cmap='Greys', interpolation='nearest')
-        plt.title(f"True: {y_samples_true[i]}\nPred: {y_samples_pred[i]}")
+        plt.title(f"True: {chr(y_samples_true[i] + 65)}\nPred: {chr(y_samples_pred[i] + 65)}")
         plt.axis('off')
     plt.tight_layout()
     plt.show()
@@ -132,24 +133,6 @@ def neural_networks(neurons_per_layer, activation_func):
 
   print('\nTest accuracy:', test_acc)
 
-  #y_predict = model1.predict(X_test_reshaped)
-  #y_pred_classes = np.argmax(y_predict, axis=1)
-  #cm = confusion_matrix(y_test, y_pred_classes)
-  #print(y_predict.shape)
-  #print(y_test.shape)
-  #print("Confusion_Matrix:")
-  #print(cm)
-
-
-  #f1_macro = f1_score(y_test, y_pred_classes, average='macro')
-  #f1_micro = f1_score(y_test, y_pred_classes, average='micro')
-  #f1_weighted = f1_score(y_test, y_pred_classes, average='weighted')
-
-  # Print the F1-scores
-  #print("Macro-average F1-Score:", f1_macro)
-  #print("Micro-average F1-Score:", f1_micro)
-  #print("Weighted-average F1-Score:", f1_weighted)
-
   plt.figure(figsize=(12, 5))
 
   # Plot the Loss Curves
@@ -172,14 +155,3 @@ def neural_networks(neurons_per_layer, activation_func):
 
   plt.show()
   return model1
-
-#print(X_Valid.shape)
-#print(Y_Valid.shape)
-
-#print("First NN Model")
-#neural_networks([128, 64, 26], 'relu')
-#print("Second NN Model")
-#neural_networks([256, 128, 64, 26], 'sigmoid')
-
-#print(X_test.shape)
-#print(y_train.shape)
