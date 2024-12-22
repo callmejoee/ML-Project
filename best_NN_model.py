@@ -22,11 +22,17 @@ print("Macro-average F1-Score:", f1_macro)
 print("Micro-average F1-Score:", f1_micro)
 print("Weighted-average F1-Score:", f1_weighted)
 
+print("First Model:")
+neural_networks([128, 64, 26], 'softmax')
+print("Second Model")
+neural_networks([256, 128, 64, 26], 'relu')
+
 def preprocess_letter_image(image_path):
     image = Image.open(image_path)
 
     image = image.convert('L')
     image = image.resize((28, 28))
+    #image.show()
 
     img_array = np.array(image)
     img_array = img_array.reshape(1, -1)
@@ -36,7 +42,7 @@ def preprocess_letter_image(image_path):
     img_array = np.clip(img_array, 0, 1)
 
     img_array = (img_array * 255).astype(np.uint8)
-    img_array = 255 - img_array
+    #img_array = 255 - img_array
 
     return img_array
 
@@ -56,8 +62,20 @@ def visualize_test_results(image_paths, model):
     plt.tight_layout()
     plt.show()
 
-# Example usage
-image_paths = ["/content/drive/MyDrive/ML_project_data/O M A R/O.jpg", "/content/drive/MyDrive/ML_project_data/O M A R/M.jpg", "/content/drive/MyDrive/ML_project_data/O M A R/A.jpg"]
+# Example usage(Team Member_1)
+image_paths = ["/content/drive/MyDrive/ML Project/M.jpeg", "/content/drive/MyDrive/ML Project/A.jpeg","/content/drive/MyDrive/ML Project/R.jpeg", "/content/drive/MyDrive/ML Project/K.jpeg"]
 visualize_test_results(image_paths, model1)
 
-visualize_predictions(X_test_reshaped, y_test, y_pred_classes)
+# Example usage(Team Member_2)
+image_paths = ["/content/drive/MyDrive/ML Project/O.jpeg", "/content/drive/MyDrive/ML Project/M.jpeg","/content/drive/MyDrive/ML Project/A.jpeg", "/content/drive/MyDrive/ML Project/R.jpeg"]
+visualize_test_results(image_paths, model1)
+
+# Example usage(Team Member_3)
+image_paths = ["/content/drive/MyDrive/ML Project/Y.jpeg", "/content/drive/MyDrive/ML Project/O.jpeg","/content/drive/MyDrive/ML Project/U.jpeg", "/content/drive/MyDrive/ML Project/S.jpeg","/content/drive/MyDrive/ML Project/S.jpeg","/content/drive/MyDrive/ML Project/E.jpeg","/content/drive/MyDrive/ML Project/F.jpeg"]
+visualize_test_results(image_paths, model1)
+
+# Example usage(Team Member_4)
+image_paths = ["/content/drive/MyDrive/ML Project/H.jpeg", "/content/drive/MyDrive/ML Project/A.jpeg","/content/drive/MyDrive/ML Project/B.jpeg", "/content/drive/MyDrive/ML Project/I.jpeg","/content/drive/MyDrive/ML Project/B.jpeg","/content/drive/MyDrive/ML Project/A.jpeg"]
+visualize_test_results(image_paths, model1)
+
+#visualize_predictions(X_test_reshaped, y_test, y_pred_classes)

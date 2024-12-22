@@ -106,7 +106,7 @@ def svm_linear_model():
 #
 # svm_nonlinear_model()
 
-X_train_splited,X_Valid,y_train_splited,Y_Valid = train_test_split(X_reshaped, y_train, test_size=0.2, random_state=42)
+X_train_2D,X_Valid,y_train_2D,Y_Valid = train_test_split(X_reshaped, y_train, test_size=0.2, random_state=42)
 
 def build_model(neurons_of_layers, activation):
   parameters_arr = [
@@ -128,7 +128,7 @@ def setup_model(model):
 def neural_networks(neurons_per_layer, activation_func):
   model1 = build_model(neurons_per_layer, activation_func)
   setup_model(model1)
-  fiting_data = model1.fit(X_train_splited, y_train_splited, validation_data=(X_Valid, Y_Valid), epochs=2, verbose=1)
+  fiting_data = model1.fit(X_train_2D, y_train_2D, validation_data=(X_Valid, Y_Valid), epochs=40, verbose=1)
   test_loss, test_acc = model1.evaluate(X_test_reshaped, y_test, verbose=1)
 
   print('\nTest accuracy:', test_acc)
