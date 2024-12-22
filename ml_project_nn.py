@@ -97,8 +97,8 @@ def svm_linear_model():
     model.fit(X_train,y_train)
     y_pre=model.predict(X_test)
     cm=confusion_matrix(y_test,y_pre)
-    print(cm)
     print("\nconfusion_matrix Linear SVM:")
+    print(cm)
     report = classification_report(y_test, y_pre)
     print("\nClassification Report Linear SVM:")
     print(report)
@@ -237,10 +237,13 @@ def svm_nonlinear_model():
      model.fit(X_train, y_train)
      y_pre = model.predict(X_test)
      cm = confusion_matrix(y_test, y_pre)
+     print("\nconfusion_matrix Linear SVM:")
      print(cm)
-     f1 = f1_score(y_test, y_pre, average='weighted')
-     print(f"Average F1 Score Non-Linear SVM: {f1:.4f}")
+     report = classification_report(y_test, y_pre)
+     print("\nClassification Report Linear SVM:")
+     print(report)
      visualize_predictions(X_test, y_test, y_pre)
+
 
  svm_nonlinear_model()
 
@@ -424,6 +427,10 @@ def logistic_predict(x, all_weights):
 # Train the logistic regression model
 num_of_classes = y.nunique()
 all_weights, costs = logistic_train(0.2, 300, X_train_1D, y_train_1D, num_of_classes)
+
+y_train_prediction = logistic_predict(X_train, all_weights)
+train_accuracy = np.mean(y_train_prediction == y_train)
+print(f"Training Accuracy: {train_accuracy:.4f}")
 
 # Validate the model on the validation set
 y_val_prediction = logistic_predict(X_val, all_weights)
