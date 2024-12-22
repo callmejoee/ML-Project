@@ -102,7 +102,10 @@ def logistic_predict(x, all_weights):
 
 # Train the logistic regression model
 num_of_classes = y.nunique()
-all_weights, costs = logistic_train(0.01, 100, X_train, y_train, num_of_classes)
+all_weights, costs = logistic_train(0.4, 500, X_train, y_train, num_of_classes)
+y_train_prediction = logistic_predict(X_train, all_weights)
+train_accuracy = np.mean(y_train_prediction == y_train)
+print(f"Training Accuracy: {train_accuracy:.4f}")
 
 # Validate the model on the validation set
 y_val_prediction = logistic_predict(X_val, all_weights)
